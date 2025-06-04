@@ -7,7 +7,9 @@ produces multi-channel measurements containing short impulses on top of pink and
 white noise, determines the inter-channel delays, estimates the source position
 and energy intensity, forms a spectral vector and sends all fields packed with
 MessagePack. Each packet also carries the microphone geometry so the dashboard
-can display the array without additional commands.
+can display the array without additional commands. The simulator can now emit a
+sequence of events with configurable amplitudes so the web dashboard can show
+how detection behaves for several weak signals in a row.
 
 ## Calibration Suite
 `calibration_suite.py` generates multichannel test signals using synthetic room
@@ -39,7 +41,8 @@ statistical queries.
 
 - **Signal simulator**:
   ```bash
-  python sim_full.py --host broker.mqttdashboard.com --port 1883 --topic USTYM/LPNU
+  python sim_full.py --host broker.mqttdashboard.com --port 1883 \
+      --topic USTYM/LPNU --events 5
   ```
 
 - **Calibration suite**:

@@ -26,6 +26,7 @@ def generate_event(
     sample_rate: int,
     max_delay: float = 0.02,
     pulse_len: int = 64,
+    amp: float | None = None,
 ) -> tuple[np.ndarray, float, float, float]:
     """Create multichannel signals with a single short pulse."""
     duration = max_delay + 0.05
@@ -34,7 +35,8 @@ def generate_event(
     # random source position within 0..10 m square
     x = random.uniform(0, 10)
     y = random.uniform(0, 10)
-    amp = random.uniform(0.1, 1.0)
+    if amp is None:
+        amp = random.uniform(0.1, 1.0)
 
     signals = 0.01 * (np.random.randn(len(mics), n_samples) + pink_noise(n_samples))
 
@@ -81,7 +83,7 @@ def event_spectrum(signals: np.ndarray) -> List[float]:
     return (spec / np.max(spec)).tolist()
 
 
-async def publish_loop(host: str, port: int, topic: str, sr: int) -> None:
+async def publish_loop(host: str, port: int, topic: str, sr: int, events: int) -> None:
     mics = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]]
     client = mqtt.Client()
     connected = asyncio.Event()
@@ -97,8 +99,9 @@ async def publish_loop(host: str, port: int, topic: str, sr: int) -> None:
     await connected.wait()
 
     try:
-        while True:
-            signals, x, y, _ = generate_event(mics, sr)
+        for i in range(events):
+            amp = 0.2 * (i + 1)
+            signals, x, y, _ = generate_event(mics, sr, amp=amp)
             delays = estimate_delays(signals, sr)
             coords = estimate_position(delays, mics)
             intensity = event_intensity(signals)
@@ -109,6 +112,7 @@ async def publish_loop(host: str, port: int, topic: str, sr: int) -> None:
                     "coords": coords,
                     "intensity": intensity,
                     "spectrum": spectrum,
+                    "amp": amp,
                     "mics": mics,
                 },
                 use_bin_type=True,
@@ -126,8 +130,9 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=1883)
     parser.add_argument("--topic", default="USTYM/LPNU")
     parser.add_argument("--rate", type=int, default=16000)
+    parser.add_argument("--events", type=int, default=5, help="number of events")
     args = parser.parse_args()
-    asyncio.run(publish_loop(args.host, args.port, args.topic, args.rate))
+    asyncio.run(publish_loop(args.host, args.port, args.topic, args.rate, args.events))
 
 
 if __name__ == "__main__":
