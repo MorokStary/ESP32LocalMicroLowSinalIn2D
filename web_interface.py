@@ -1,5 +1,5 @@
 import argparse
-import json
+import msgpack
 import time
 import eventlet
 from flask import Flask, render_template
@@ -29,7 +29,7 @@ def create_mqtt_client(host: str, port: int, topic: str) -> mqtt.Client:
             if msg.payload.decode() == "get_mics":
                 client.publish(topic + "/cmd", "ack")
             return
-        data = json.loads(msg.payload.decode())
+        data = msgpack.unpackb(msg.payload, raw=False)
         coords = data.get("coords", [0, 0])
         storage.insert_event(time.time(), coords[0], coords[1], data.get("intensity", 0))
         socketio.emit("coords", data)
