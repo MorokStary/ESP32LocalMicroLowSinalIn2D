@@ -36,10 +36,11 @@ let pathTrace = {x: [], y: [], mode: 'markers+lines', line:{color:'rgba(255,0,0,
 Plotly.newPlot('area', [micTrace, pathTrace, sourceTrace], {xaxis: {range:[0,10]}, yaxis:{range:[0,10]}, margin:{t:20}});
 let specTrace = {x: [], y: [], mode: 'lines', name: 'spectrum'};
 let intensityTrace = {x: [], y: [], mode: 'lines', name: 'intensity'};
+let amplitudeTrace = {x: [], y: [], mode: 'lines', name: 'amplitude'};
 let history = [];
 const maxPoints = 50;
 Plotly.newPlot('spectrum', [specTrace], {margin:{t:20}});
-Plotly.newPlot('intensity', [intensityTrace], {margin:{t:20}, xaxis:{type:'date'}});
+Plotly.newPlot('intensity', [intensityTrace, amplitudeTrace], {margin:{t:20}, xaxis:{type:'date'}});
 
 socket.on('coords', function(data) {
     if (data.mics) {
@@ -60,11 +61,18 @@ socket.on('coords', function(data) {
         const ts = new Date();
         intensityTrace.x.push(ts);
         intensityTrace.y.push(data.intensity);
+        amplitudeTrace.x.push(ts);
+        amplitudeTrace.y.push(data.amp !== undefined ? data.amp : 0);
         if (intensityTrace.x.length > maxPoints) {
             intensityTrace.x.shift();
             intensityTrace.y.shift();
+            amplitudeTrace.x.shift();
+            amplitudeTrace.y.shift();
         }
-        Plotly.update('intensity', {x:[intensityTrace.x], y:[intensityTrace.y]});
+        Plotly.update('intensity', {
+            x:[intensityTrace.x, amplitudeTrace.x],
+            y:[intensityTrace.y, amplitudeTrace.y]
+        });
     }
     Plotly.update('area', {
         x: [micTrace.x, pathTrace.x, sourceTrace.x],
