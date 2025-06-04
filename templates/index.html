@@ -31,8 +31,11 @@
 const socket = io();
 let micTrace = {x: [], y: [], mode: 'markers', marker: {color: 'blue', size: 8}, name: 'mics'};
 let sourceTrace = {x: [0], y: [0], mode: 'markers', marker: {color: 'red', size: 10}, name: 'source'};
-Plotly.newPlot('area', [micTrace, sourceTrace], {xaxis: {range:[0,10]}, yaxis:{range:[0,10]}, margin:{t:20}});
+let pathTrace = {x: [], y: [], mode: 'lines', line:{color:'rgba(255,0,0,0.3)'}, name:'path'};
+Plotly.newPlot('area', [micTrace, pathTrace, sourceTrace], {xaxis: {range:[0,10]}, yaxis:{range:[0,10]}, margin:{t:20}});
 let specTrace = {x: [], y: [], mode: 'lines', name: 'spectrum'};
+let history = [];
+const maxPoints = 50;
 Plotly.newPlot('spectrum', [specTrace], {margin:{t:20}});
 
 socket.on('coords', function(data) {
@@ -43,14 +46,18 @@ socket.on('coords', function(data) {
     if (data.coords) {
         sourceTrace.x = [data.coords[0]];
         sourceTrace.y = [data.coords[1]];
+        history.push({x:data.coords[0], y:data.coords[1]});
+        if (history.length > maxPoints) history.shift();
+        pathTrace.x = history.map(p => p.x);
+        pathTrace.y = history.map(p => p.y);
     }
     if (data.intensity !== undefined) {
         sourceTrace.marker.size = Math.max(5, data.intensity * 30);
     }
     Plotly.update('area', {
-        x: [micTrace.x, sourceTrace.x],
-        y: [micTrace.y, sourceTrace.y],
-        'marker.size': [micTrace.marker.size, sourceTrace.marker.size]
+        x: [micTrace.x, pathTrace.x, sourceTrace.x],
+        y: [micTrace.y, pathTrace.y, sourceTrace.y],
+        'marker.size': [micTrace.marker.size, null, sourceTrace.marker.size]
     });
     if (data.spectrum) {
         specTrace.x = data.spectrum.map((_, i) => i);
