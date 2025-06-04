@@ -27,13 +27,19 @@
     <div id="area" style="width:600px;height:400px;"></div>
     <div id="spectrum" style="width:600px;height:400px;"></div>
 </div>
+<div id="intensity" style="width:1220px;height:200px;margin-top:20px;"></div>
 <script>
 const socket = io();
 let micTrace = {x: [], y: [], mode: 'markers', marker: {color: 'blue', size: 8}, name: 'mics'};
 let sourceTrace = {x: [0], y: [0], mode: 'markers', marker: {color: 'red', size: 10}, name: 'source'};
-Plotly.newPlot('area', [micTrace, sourceTrace], {xaxis: {range:[0,10]}, yaxis:{range:[0,10]}, margin:{t:20}});
+let pathTrace = {x: [], y: [], mode: 'markers+lines', line:{color:'rgba(255,0,0,0.3)'}, marker:{size:4, color:[]}, name:'path'};
+Plotly.newPlot('area', [micTrace, pathTrace, sourceTrace], {xaxis: {range:[0,10]}, yaxis:{range:[0,10]}, margin:{t:20}});
 let specTrace = {x: [], y: [], mode: 'lines', name: 'spectrum'};
+let intensityTrace = {x: [], y: [], mode: 'lines', name: 'intensity'};
+let history = [];
+const maxPoints = 50;
 Plotly.newPlot('spectrum', [specTrace], {margin:{t:20}});
+Plotly.newPlot('intensity', [intensityTrace], {margin:{t:20}, xaxis:{type:'date'}});
 
 socket.on('coords', function(data) {
     if (data.mics) {
@@ -43,14 +49,28 @@ socket.on('coords', function(data) {
     if (data.coords) {
         sourceTrace.x = [data.coords[0]];
         sourceTrace.y = [data.coords[1]];
+        history.push({x:data.coords[0], y:data.coords[1]});
+        if (history.length > maxPoints) history.shift();
+        pathTrace.x = history.map(p => p.x);
+        pathTrace.y = history.map(p => p.y);
+        pathTrace.marker.color = history.map((p,i)=>`rgba(255,0,0,${(i+1)/history.length})`);
     }
     if (data.intensity !== undefined) {
         sourceTrace.marker.size = Math.max(5, data.intensity * 30);
+        const ts = new Date();
+        intensityTrace.x.push(ts);
+        intensityTrace.y.push(data.intensity);
+        if (intensityTrace.x.length > maxPoints) {
+            intensityTrace.x.shift();
+            intensityTrace.y.shift();
+        }
+        Plotly.update('intensity', {x:[intensityTrace.x], y:[intensityTrace.y]});
     }
     Plotly.update('area', {
-        x: [micTrace.x, sourceTrace.x],
-        y: [micTrace.y, sourceTrace.y],
-        'marker.size': [micTrace.marker.size, sourceTrace.marker.size]
+        x: [micTrace.x, pathTrace.x, sourceTrace.x],
+        y: [micTrace.y, pathTrace.y, sourceTrace.y],
+        'marker.size': [micTrace.marker.size, pathTrace.marker.size, sourceTrace.marker.size],
+        'marker.color': [micTrace.marker.color, pathTrace.marker.color, sourceTrace.marker.color]
     });
     if (data.spectrum) {
         specTrace.x = data.spectrum.map((_, i) => i);
