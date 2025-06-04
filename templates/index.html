@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <title>Detection Dashboard</title>
+</head>
+<body>
+<h1>Detection Dashboard</h1>
+<div id="heatmap" style="width:600px;height:400px;"></div>
+<div id="timeline" style="width:600px;height:400px;"></div>
+<script>
+const token = localStorage.getItem('access_token');
+const socket = io({query: {token}});
+
+const gridSize = 10;
+let z = Array.from({length: gridSize}, () => Array(gridSize).fill(0));
+let heatmap = {z: z, type: 'heatmap'};
+Plotly.newPlot('heatmap', [heatmap]);
+
+let timeData = {x: [], y: [], mode: 'lines', type: 'scatter'};
+Plotly.newPlot('timeline', [timeData]);
+
+socket.on('coords', function(data) {
+    const {x, y, intensity} = data;
+    if (x < gridSize && y < gridSize) {
+        z[y][x] += intensity;
+        Plotly.update('heatmap', {z: [z]});
+    }
+    const now = new Date();
+    timeData.x.push(now);
+    timeData.y.push(intensity);
+    Plotly.update('timeline', {x: [timeData.x], y: [timeData.y]});
+});
+</script>
+</body>
+</html>
