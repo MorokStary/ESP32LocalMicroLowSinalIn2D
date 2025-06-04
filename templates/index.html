@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <title>Detection Dashboard</title>
+    <title>Sound Source Viewer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,32 +22,41 @@
     </style>
 </head>
 <body>
-<h1>Detection Dashboard</h1>
+<h1>Sound Source Viewer</h1>
 <div class="charts">
-    <div id="heatmap" style="width:600px;height:400px;"></div>
-    <div id="timeline" style="width:600px;height:400px;"></div>
+    <div id="area" style="width:600px;height:400px;"></div>
+    <div id="spectrum" style="width:600px;height:400px;"></div>
 </div>
 <script>
 const socket = io();
-
-const gridSize = 10;
-let z = Array.from({length: gridSize}, () => Array(gridSize).fill(0));
-let heatmap = {z: z, type: 'heatmap'};
-Plotly.newPlot('heatmap', [heatmap]);
-
-let timeData = {x: [], y: [], mode: 'lines', type: 'scatter'};
-Plotly.newPlot('timeline', [timeData]);
+let micTrace = {x: [], y: [], mode: 'markers', marker: {color: 'blue', size: 8}, name: 'mics'};
+let sourceTrace = {x: [0], y: [0], mode: 'markers', marker: {color: 'red', size: 10}, name: 'source'};
+Plotly.newPlot('area', [micTrace, sourceTrace], {xaxis: {range:[0,10]}, yaxis:{range:[0,10]}, margin:{t:20}});
+let specTrace = {x: [], y: [], mode: 'lines', name: 'spectrum'};
+Plotly.newPlot('spectrum', [specTrace], {margin:{t:20}});
 
 socket.on('coords', function(data) {
-    const {x, y, intensity} = data;
-    if (x < gridSize && y < gridSize) {
-        z[y][x] += intensity;
-        Plotly.update('heatmap', {z: [z]});
+    if (data.mics) {
+        micTrace.x = data.mics.map(p => p[0]);
+        micTrace.y = data.mics.map(p => p[1]);
     }
-    const now = new Date();
-    timeData.x.push(now);
-    timeData.y.push(intensity);
-    Plotly.update('timeline', {x: [timeData.x], y: [timeData.y]});
+    if (data.coords) {
+        sourceTrace.x = [data.coords[0]];
+        sourceTrace.y = [data.coords[1]];
+    }
+    if (data.intensity !== undefined) {
+        sourceTrace.marker.size = Math.max(5, data.intensity * 30);
+    }
+    Plotly.update('area', {
+        x: [micTrace.x, sourceTrace.x],
+        y: [micTrace.y, sourceTrace.y],
+        'marker.size': [micTrace.marker.size, sourceTrace.marker.size]
+    });
+    if (data.spectrum) {
+        specTrace.x = data.spectrum.map((_, i) => i);
+        specTrace.y = data.spectrum;
+        Plotly.update('spectrum', {x:[specTrace.x], y:[specTrace.y]});
+    }
 });
 </script>
 </body>
