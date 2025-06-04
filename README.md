@@ -5,7 +5,8 @@ The system consists of a microphone array connected to an ESP32.
 `sim_module.py` emulates the ESP32 output while hardware is unavailable. The script
 creates weak sinusoidal signals, adds synthetic white and pink noise according
 to a chosen SNR, quantizes the result to `float32` and publishes packets over
-MQTT using a MessagePack payload. The default topic is `USTYM/LPNU`.
+MQTT using a MessagePack payload. The default broker is the public HiveMQ instance
+`broker.mqttdashboard.com` and the default topic is `USTYM/LPNU`.
 
 A real‑time mode can be enabled with `--realtime` which transmits data at twice
 the normal sampling rate for faster algorithm testing.
@@ -31,13 +32,13 @@ the normal sampling rate for faster algorithm testing.
 
 - **Signal simulator**:
   ```bash
-  python sim_module.py --host <mqtt-host> --port 1883 --topic USTYM/LPNU
+  python sim_module.py --host broker.mqttdashboard.com --port 1883 --topic USTYM/LPNU
   ```
   Add `--realtime` to double the output speed.
 
 - **Calibration suite**:
   ```bash
-  python calibration_suite.py --host <mqtt-host> --port 1883 --topic USTYM/CALIB
+  python calibration_suite.py --host broker.mqttdashboard.com --port 1883 --topic USTYM/CALIB
   ```
 
 - **Web interface**:
