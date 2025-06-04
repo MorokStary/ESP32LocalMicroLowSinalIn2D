@@ -9,3 +9,6 @@ MQTT using a MessagePack payload. The default topic is `USTYM/LPNU`.
 
 A real‑time mode can be enabled with `--realtime` which transmits data at twice
 the normal sampling rate for faster algorithm testing.
+
+## Calibration Suite
+`calibration_suite.py` generates multichannel test signals using synthetic room impulse responses produced by [Pyroomacoustics](https://github.com/LCAV/pyroomacoustics). The script sends packets to an MQTT broker with the true source coordinates and varying tone amplitudes. This data can be collected by `HostCollector` to evaluate localization accuracy and tune classification thresholds.
