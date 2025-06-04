@@ -5,14 +5,30 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <title>Detection Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f8f8f8;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .charts {
+            display: flex;
+            gap: 20px;
+        }
+    </style>
 </head>
 <body>
 <h1>Detection Dashboard</h1>
-<div id="heatmap" style="width:600px;height:400px;"></div>
-<div id="timeline" style="width:600px;height:400px;"></div>
+<div class="charts">
+    <div id="heatmap" style="width:600px;height:400px;"></div>
+    <div id="timeline" style="width:600px;height:400px;"></div>
+</div>
 <script>
-const token = localStorage.getItem('access_token');
-const socket = io({query: {token}});
+const socket = io();
 
 const gridSize = 10;
 let z = Array.from({length: gridSize}, () => Array(gridSize).fill(0));

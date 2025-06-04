@@ -3,6 +3,5 @@ msgpack
 paho-mqtt
 pyroomacoustics
 flask
-flask-jwt-extended
 flask-socketio
 eventlet
