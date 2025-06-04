@@ -18,3 +18,30 @@ the normal sampling rate for faster algorithm testing.
 
 ## Data Storage
 `data_storage.py` implements asynchronous writes to a SQLite database. Event samples and filter parameters are kept in separate tables indexed by timestamp for quick statistical queries.
+
+## Setup
+
+1. Ensure Python 3.10+ is installed.
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Running
+
+- **Signal simulator**:
+  ```bash
+  python sim_module.py --host <mqtt-host> --port 1883 --topic USTYM/LPNU
+  ```
+  Add `--realtime` to double the output speed.
+
+- **Calibration suite**:
+  ```bash
+  python calibration_suite.py --host <mqtt-host> --port 1883 --topic USTYM/CALIB
+  ```
+
+- **Web interface**:
+  ```bash
+  python web_interface.py
+  ```
+  Then open `http://localhost:5000/login` in a browser.
