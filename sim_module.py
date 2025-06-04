@@ -36,7 +36,11 @@ def generate_packet(size, snr_db, sample_rate):
 
 def main():
     parser = argparse.ArgumentParser(description="ESP32 signal simulator")
-    parser.add_argument("--host", default="localhost", help="MQTT broker host")
+    parser.add_argument(
+        "--host",
+        default="broker.mqttdashboard.com",
+        help="MQTT broker host",
+    )
     parser.add_argument("--port", type=int, default=1883, help="MQTT broker port")
     parser.add_argument("--topic", default="USTYM/LPNU", help="MQTT topic")
     parser.add_argument(

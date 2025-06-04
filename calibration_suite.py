@@ -31,7 +31,11 @@ def generate_signals(room_dim, mic_positions, source_pos, amplitudes, fs, tone_f
 
 def main():
     parser = argparse.ArgumentParser(description="Calibration signal generator")
-    parser.add_argument("--host", default="localhost", help="MQTT broker host")
+    parser.add_argument(
+        "--host",
+        default="broker.mqttdashboard.com",
+        help="MQTT broker host",
+    )
     parser.add_argument("--port", type=int, default=1883, help="MQTT broker port")
     parser.add_argument("--topic", default="USTYM/CALIB", help="MQTT topic")
     parser.add_argument("--rate", type=int, default=16000, help="Sampling rate")
