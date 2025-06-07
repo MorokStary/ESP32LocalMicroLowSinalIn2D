@@ -10,7 +10,7 @@ def wavelet_detection(
     s4,
     fs,
     threshold=0.6,
-    wavelet="haar",
+    wavelet="morl",
     show=True,
     axes=None,
 ):
@@ -26,7 +26,8 @@ def wavelet_detection(
     threshold : float, optional
         Relative threshold applied to the detection curves. The default is 0.6.
     wavelet : str, optional
-        Wavelet name passed to :func:`pywt.cwt`. Default is ``'haar'``.
+        Name of a continuous wavelet supported by :mod:`pywt`. Default is
+        ``'morl'``.
     show : bool, optional
         If True, plot the detection curves.
 
@@ -38,10 +39,18 @@ def wavelet_detection(
     a0 = 2 ** (1 / 64)
     scales = a0 ** np.arange(64, 4 * 64 + 1)
 
-    coeffs1, _ = pywt.cwt(s1, scales, wavelet, 1 / fs)
-    coeffs2, _ = pywt.cwt(s2, scales, wavelet, 1 / fs)
-    coeffs3, _ = pywt.cwt(s3, scales, wavelet, 1 / fs)
-    coeffs4, _ = pywt.cwt(s4, scales, wavelet, 1 / fs)
+    # ensure numpy arrays for ``pywt.cwt``
+    s1 = np.asarray(s1)
+    s2 = np.asarray(s2)
+    s3 = np.asarray(s3)
+    s4 = np.asarray(s4)
+
+    cw = pywt.ContinuousWavelet(wavelet)
+
+    coeffs1, _ = pywt.cwt(s1, scales, cw, 1 / fs)
+    coeffs2, _ = pywt.cwt(s2, scales, cw, 1 / fs)
+    coeffs3, _ = pywt.cwt(s3, scales, cw, 1 / fs)
+    coeffs4, _ = pywt.cwt(s4, scales, cw, 1 / fs)
 
     det1 = np.sum(np.abs(coeffs1), axis=0)
     det2 = np.sum(np.abs(coeffs2), axis=0)

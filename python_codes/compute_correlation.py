@@ -2,7 +2,17 @@ from scipy import signal
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-def corelatia(s1,s2,s3,s4,fs):
+def corelatia(s1, s2, s3, s4, fs):
+    """Estimate TDOA using cross correlation."""
+
+    # ``scipy.signal.correlate`` expects ``numpy`` arrays.  Ensure that the
+    # provided lists are converted to arrays in order to avoid attribute errors
+    # on Python lists when SciPy tries to access ``.shape``.
+    s1 = np.asarray(s1)
+    s2 = np.asarray(s2)
+    s3 = np.asarray(s3)
+    s4 = np.asarray(s4)
+
     corr1 = signal.correlate(s1, s2, mode="full")
     corr2 = signal.correlate(s1, s3, mode="full")
     corr3 = signal.correlate(s1, s4, mode="full")
