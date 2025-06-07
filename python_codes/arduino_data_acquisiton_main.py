@@ -7,6 +7,7 @@ from tdoa import tdoa
 from data_visualization import draw_fig_real_time, plot_3d_coordinates
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 if __name__ == "__main__":
     data = []
@@ -14,8 +15,9 @@ if __name__ == "__main__":
     x=[0,0.17,0.17,0.72]
     y=[0,0,0.85,0.61]
     z=[0,0,0,0.13]
-    print("start")
-    ser = serial.Serial('COM6', baudrate=115200)
+    port = sys.argv[1] if len(sys.argv) > 1 else 'COM6'
+    print(f"start (using port {port})")
+    ser = serial.Serial(port, baudrate=115200)
     dateTimeObj=datetime.now()
     start = timeit.default_timer()
     # Read data until you find a signal amplitude value greater than 1.75 V
