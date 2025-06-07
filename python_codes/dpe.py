@@ -19,6 +19,10 @@ def dpe_detection(s1, s2, s3, s4, fs, level=0.35):
     n3 = first_idx(s3)
     n4 = first_idx(s4)
 
+    if not any([n1, n2, n3, n4]):
+        # If no event was detected return zeros to avoid division by zero
+        return 0.0, 0.0, 0.0
+
     td12 = (n1 - n2) / fs
     td13 = (n1 - n3) / fs
     td14 = (n1 - n4) / fs

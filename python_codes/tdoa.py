@@ -1,9 +1,15 @@
 import numpy as np
 
 
-def tdoa(td1, td2, td3, x, y, z, v=343):
-    """Compute source coordinates using the TDOA method."""
+def tdoa(td1, td2, td3, x, y, z, v=343, eps=1e-6):
+    """Compute source coordinates using the TDOA method.
+
+    Small or zero time delays can lead to divisions by zero and numerical
+    issues.  ``eps`` is used as a lower bound to avoid these problems.
+    """
+
     time_delays = [0, td1, td2, td3]
+    time_delays = [td if abs(td) > eps else eps * (1 if td >= 0 else -1) for td in time_delays]
     n = len(time_delays)
 
     Amat = np.zeros((n, 1))
