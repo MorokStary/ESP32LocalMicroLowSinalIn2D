@@ -27,7 +27,18 @@ def rp_plot(P, m, t, r=0.9):
     return RP, DD
 
 
-def rpa_detection(s1, s2, s3, s4, fs, threshold=0.4, rp_thresh=0.9, show=False):
+def rpa_detection(
+    s1,
+    s2,
+    s3,
+    s4,
+    fs,
+    threshold=0.4,
+    rp_thresh=0.9,
+    show=False,
+    axes=None,
+):
+
     """Estimate TDOA using Recurrence Plot Analysis."""
     _, DD1 = rp_plot(s1, 3, 1, rp_thresh)
     _, DD2 = rp_plot(s2, 3, 1, rp_thresh)
@@ -49,10 +60,17 @@ def rpa_detection(s1, s2, s3, s4, fs, threshold=0.4, rp_thresh=0.9, show=False):
     t3 = idx3 / fs
     t4 = idx4 / fs
 
-    if show:
+    if axes is not None:
+        axs = axes
+    elif show:
         import matplotlib.pyplot as plt
 
         fig, axs = plt.subplots(2, 2)
+    else:
+        axs = None
+
+    if axs is not None:
+
         axs[0, 0].plot(C1)
         axs[0, 0].set_title("Detection curve 1")
         axs[0, 1].plot(C2)
@@ -63,10 +81,13 @@ def rpa_detection(s1, s2, s3, s4, fs, threshold=0.4, rp_thresh=0.9, show=False):
         axs[1, 1].set_title("Detection curve 4")
         for ax in axs.flat:
             ax.set(xlabel="Samples", ylabel="Amplitude")
-        plt.tight_layout()
-        plt.show()
+        if show and axes is None:
+            plt.tight_layout()
+            plt.show()
+
 
     td12 = t1 - t2
     td13 = t1 - t3
     td14 = t1 - t4
-    return td12, td13, td14
+    return td12, td13, td14, (C1, C2, C3, C4)
+
