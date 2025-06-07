@@ -9,6 +9,14 @@ def spectrogram(s1, s2, s3, s4, fs, axes=None, show=True):
 
     """Plot spectrograms for the four microphone signals."""
 
+    # ``scipy.signal.spectrogram`` expects numpy arrays.  The signals
+    # captured from the serial port are lists of floats, so convert them to
+    # arrays here to avoid attribute errors when SciPy accesses ``shape``.
+    s1 = np.asarray(s1)
+    s2 = np.asarray(s2)
+    s3 = np.asarray(s3)
+    s4 = np.asarray(s4)
+
     f1, t1, Sxx1 = signal.spectrogram(s1, fs)
     f2, t2, Sxx2 = signal.spectrogram(s2, fs)
     f3, t3, Sxx3 = signal.spectrogram(s3, fs)
