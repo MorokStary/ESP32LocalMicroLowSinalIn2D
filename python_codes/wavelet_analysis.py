@@ -14,6 +14,7 @@ def wavelet_detection(
     show=True,
     axes=None,
 ):
+
     """Detect events using a wavelet-based method similar to MATLAB wavelet_s.m.
 
     Parameters
@@ -78,6 +79,7 @@ def wavelet_detection(
         if show and axes is None:
             plt.tight_layout()
             plt.show()
+
 
     td12 = t1 - t2
     td13 = t1 - t3

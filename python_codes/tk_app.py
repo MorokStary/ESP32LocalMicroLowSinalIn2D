@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import serial
 
 
+
 from compute_correlation import corelatia
 from tdoa import tdoa
 from db_logger import log_event
@@ -17,6 +18,7 @@ from compute_spectogram import spectrogram
 
 def read_signals(port="COM6", baud=115200, threshold=1.75, iterations=50):
     """Read data from the serial port until a threshold is exceeded."""
+
     ser = serial.Serial(port, baudrate=baud)
     data = []
     try:
@@ -28,6 +30,7 @@ def read_signals(port="COM6", baud=115200, threshold=1.75, iterations=50):
             if line.replace(".", "", 1).isdigit() and float(line) > threshold:
                 for _ in range(iterations):
                     line = ser.readline().decode("ascii", errors="ignore").strip()
+
                     if line:
                         data.append(float(line))
                 break
@@ -150,3 +153,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = App(root)
     root.mainloop()
+

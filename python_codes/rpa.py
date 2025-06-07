@@ -38,6 +38,7 @@ def rpa_detection(
     show=False,
     axes=None,
 ):
+
     """Estimate TDOA using Recurrence Plot Analysis."""
     _, DD1 = rp_plot(s1, 3, 1, rp_thresh)
     _, DD2 = rp_plot(s2, 3, 1, rp_thresh)
@@ -69,6 +70,7 @@ def rpa_detection(
         axs = None
 
     if axs is not None:
+
         axs[0, 0].plot(C1)
         axs[0, 0].set_title("Detection curve 1")
         axs[0, 1].plot(C2)
@@ -83,7 +85,9 @@ def rpa_detection(
             plt.tight_layout()
             plt.show()
 
+
     td12 = t1 - t2
     td13 = t1 - t3
     td14 = t1 - t4
     return td12, td13, td14, (C1, C2, C3, C4)
+

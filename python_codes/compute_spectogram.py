@@ -6,6 +6,7 @@ from scipy import signal
 
 
 def spectrogram(s1, s2, s3, s4, fs, axes=None, show=True):
+
     """Plot spectrograms for the four microphone signals."""
 
     f1, t1, Sxx1 = signal.spectrogram(s1, fs)
@@ -36,3 +37,4 @@ def spectrogram(s1, s2, s3, s4, fs, axes=None, show=True):
             plt.show()
 
     return (f1, t1, Sxx1), (f2, t2, Sxx2), (f3, t3, Sxx3), (f4, t4, Sxx4)
+
