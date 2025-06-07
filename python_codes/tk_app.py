@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import serial
+import numpy as np
 
 
 
@@ -36,6 +37,35 @@ def read_signals(port="COM6", baud=115200, threshold=1.75, iterations=50):
                 break
     finally:
         ser.close()
+    return data
+
+
+def simulate_signals(
+    fs: int = 1000,
+    duration: float = 2.0,
+    freq: float = 40.0,
+    delays=(0.0, 0.0005, 0.001, 0.0015),
+):
+    """Generate deterministic signals like ``mcu_simulator`` and return them.
+
+    The signals are returned in the same sequential format as ``read_signals``
+    would produce when receiving data from the microcontroller.
+    """
+
+    t = np.arange(0.0, duration, 1.0 / fs)
+    base = np.sin(2 * np.pi * freq * t)
+    sigs = []
+    for d in delays:
+        shift = int(round(d * fs))
+        sig = np.roll(base, shift)
+        voltage = np.clip(1.65 + 1.65 * sig, 0, 3.3)
+        sigs.append(voltage)
+    sigs = np.array(sigs)
+
+    data = []
+    for i in range(sigs.shape[1]):
+        for ch in range(sigs.shape[0]):
+            data.append(float(f"{sigs[ch, i]:.2f}"))
     return data
 
 
@@ -99,7 +129,7 @@ class App:
 
     def start_acquisition(self):
         try:
-            data = read_signals()
+            data = simulate_signals()
             fs = 1000  # sampling frequency placeholder
             method = self.algorithm_var.get()
             amp, xs, ys, zs, sigs = self.process_signals(data, fs, method)
