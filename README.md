@@ -2,15 +2,16 @@
 PAPER: https://www.researchgate.net/publication/348685093_An_Overview_of_Signal_Processing_Methods_for_Signal_Source_Localization
 
 This projects presents a couple of signal methods for detecting and localizing an acoustic signal source by using an Arduino Board and 4 microphones.
-There are two versions : a Python version and a Matlab version which is more complete. 
-It has a matlab GUI. 
+Originally the project shipped with both a MATLAB implementation and a small collection of Python scripts.
+The Python code has now been extended with a Tkinter GUI so that the whole workflow can be run without MATLAB.
+It also includes a small SQLite logger and implements the wavelet, Recurrence Plot (RPA) and DPE detection methods so that the full pipeline works in Python.
 
 # The main steps are the following:
 1. Data acquisition by using an Arduino Board and 4 microphones from which 1 microphone is used as reference.
 2. Signal processing (filtering and interpolation).
 3. Computing time of arrivals and the delays of the signals for each pair of microphones by using Cross-correlation, Spectogram, Wavelet and Recurrence Plot Analysis methods.
 4. Using Time Difference of Arrival for computing the coordinates of the signal source.
-5. Send an alarm for source detection and its coordinates by email on a personal device.
+5. When a source is detected the event is stored in a local SQLite database rather than sending an email.
 
 
 The method is effective but it uses classic signal processing methods.
